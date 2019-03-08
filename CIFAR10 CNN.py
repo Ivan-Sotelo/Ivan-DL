@@ -1,133 +1,66 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "from __future__ import absolute_import\n",
-    "from __future__ import division\n",
-    "from __future__ import print_function\n",
-    "\n",
-    "import numpy as np\n",
-    "\n",
-    "from keras.datasets import cifar10\n",
-    "from keras.utils.np_utils import to_categorical\n",
-    "from keras.models import Sequential\n",
-    "from keras.layers import Dense, Activation, Dropout, Flatten\n",
-    "from keras.optimizers import SGD \n",
-    "from keras.layers import Dense, Flatten\n",
-    "from keras.layers import Conv2D, MaxPooling2D\n",
-    "import matplotlib.pyplot as plt\n",
-    "from keras.layers.normalization import BatchNormalization\n",
-    "\n",
-    "\n",
-    "#Loading the dataset\n",
-    "(X_train, y_train), (X_test, y_test) = cifar10.load_data()\n",
-    "\n",
-    "#transform labesls to one hot vector\n",
-    "y_train = to_categorical(y_train, num_classes=10)\n",
-    "y_test = to_categorical(y_test, num_classes=10)\n",
-    "\n",
-    "#normalization [0,1]\n",
-    "X_train = X_train.astype('float32')/255\n",
-    "X_test = X_test.astype('float32')/255\n",
-    "\n",
-    "\n",
-    "\n",
-    "print(\"Shape of training data:\")\n",
-    "print(X_train.shape)\n",
-    "print(y_train.shape)\n",
-    "print(\"Shape of test data:\")\n",
-    "print(X_test.shape)\n",
-    "print(y_test.shape)\n",
-    "\n",
-    "\n",
-    "\n",
-    "\n",
-    "#3 layer CNN model\n",
-    "model = Sequential()\n",
-    "\n",
-    "model.add(Conv2D(32, (3, 3), input_shape=(32, 32, 3)))\n",
-    "\n",
-    "#Batch Normalization Layer\n",
-    "model.add(BatchNormalization())\n",
-    "model.add(Activation('relu'))\n",
-    "\n",
-    "model.add(MaxPooling2D(pool_size=(2, 2)))\n",
-    "\n",
-    "model.add(Dropout(0.15))\n",
-    "\n",
-    "model.add(Conv2D(32, (3, 3)))\n",
-    "\n",
-    "#Batch Normalization Layer\n",
-    "model.add(BatchNormalization())\n",
-    "\n",
-    "model.add(Activation('relu'))\n",
-    "\n",
-    "model.add(MaxPooling2D(pool_size=(2, 2)))\n",
-    "\n",
-    "#Dropout layer\n",
-    "model.add(Dropout(0.25))\n",
-    "\n",
-    "model.add(Flatten())\n",
-    "\n",
-    "model.add(Dense(10, activation='softmax'))\n",
-    "\n",
-    "#use SGD with nesterov and momentum as optimizer \n",
-    "sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)\n",
-    "\n",
-    "model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer=sgd)\n",
-    "\n",
-    "model.summary()\n",
-    "\n",
-    "#training Parameters\n",
-    "batch_size = 128\n",
-    "epochs = 200\n",
-    "\n",
-    "\n",
-    "history = model.fit(x=X_train,y=y_train,batch_size = batch_size,epochs=epochs, verbose=2,validation_split=0.2)\n",
-    "\n",
-    "#plotting of train error and tst error\n",
-    "def plotLosses(history):  \n",
-    "    plt.plot(history.history['loss'])\n",
-    "    plt.plot(history.history['val_loss'])\n",
-    "    plt.title('model loss')\n",
-    "    plt.ylabel('loss')\n",
-    "    plt.xlabel('epoch')\n",
-    "    plt.legend(['train', 'test'], loc='upper left')\n",
-    "    plt.show()\n",
-    "    \n",
-    "plotLosses(history)\n",
-    "    \n",
-    "\n",
-    "\n",
-    "# validate the model on test dataset to determine generalization\n",
-    "score = model.evaluate(X_test, y_test, batch_size=batch_size)\n",
-    "print(\"\\nTest accuracy: %.1f%%\" % (100.0 * score[1])) "
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.6.8"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 2
-}
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import numpy as np
+
+from keras.datasets import cifar10
+from keras.utils.np_utils import to_categorical
+from keras.models import Sequential
+from keras.layers import Dense, Activation, Dropout
+from keras.optimizers import Adam
+import matplotlib.pyplot as plt
+
+
+#Loading the dataset
+(X_train, y_train), (X_test, y_test) = cifar10.load_data()
+
+#transform labesls to one hot vector
+y_train = to_categorical(y_train, num_classes=10)
+y_test = to_categorical(y_test, num_classes=10)
+
+#Image to Vector
+X_train = np.reshape(X_train,(50000,3072))
+X_test = np.reshape(X_test,(10000,3072))
+
+#normalization [0,1]
+X_train = X_train.astype('float32')/255
+X_test = X_test.astype('float32')/255
+
+#3 layer MLP
+model = Sequential()
+model.add(Dense(1024, activation='relu', input_dim=3072))
+model.add(Dropout(0.25))
+model.add(Dense(512, activation='relu'))
+model.add(Dense(10, activation='softmax'))
+
+adam = Adam(lr=0.0006, beta_1=0.9, beta_2=0.999, decay=0.0)
+
+#compiler parameters
+model.compile(optimizer=adam,
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+model.summary()
+
+#training Parameters
+batch_size = 32
+epochs = 15
+
+
+history = model.fit(x=X_train,y=y_train,batch_size = batch_size,epochs=epochs, verbose=2,validation_split=0.2)
+
+#plotting of train error and tst error
+def plotLosses(history):
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+
+plotLosses(history)
+
+# validate the model on test dataset to determine generalization
+score = model.evaluate(X_test, y_test, batch_size=batch_size)
+print("\nTest accuracy: %.1f%%" % (100.0 * score[1]))
