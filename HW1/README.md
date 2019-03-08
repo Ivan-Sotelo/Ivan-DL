@@ -5,4 +5,7 @@ This results for the accuracy and loss can be seen in the figures below:
 
 for MLP:
 
-![alt text](https://imgur.com/Brtiuo4)
+<p align="center">
+  <img src="https://imgur.com/Brtiuo4" width="350" title="">
+  <img src="https://imgur.com/fMWCnt6" width="350" alt="">
+</p>
