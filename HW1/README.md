@@ -5,4 +5,4 @@ This results for the accuracy and loss can be seen in the figures below:
 
 for MLP:
 
-![Optional Text](../master/HW1/Docu/MLP Accuracy.png)
+![alt text](https://imgur.com/Brtiuo4)
